@@ -30,7 +30,7 @@
                 <th>{{ $row->stok }}</th>
                 <th>{{ $row->kategori }}</th>
                 <th>{{ $row->created_at }}</th>
-                <th class="flex gap-2" x-data="{ id: {{ $row->id }}}">
+                <th class="flex gap-2" value="{{ $row->id }}">
                     <button class="action-button-update btn btn-success flex-1">Edit</button>
                     <button class="action-button-delete btn btn-error flex-1">Hapus</button>
                 </th>
@@ -48,7 +48,7 @@
       <h3 id="create-update-dialog-title" class="text-2xl font-bold">Dialog</h3>
       <div class="divider"></div>
       <div class="modal-action">
-        <form id="dialog-form" class="w-full flex flex-col gap-2">
+        <form method="POST" id="dialog-form" class="w-full flex flex-col gap-2">
             @csrf
             <input id="id" type="hidden" name="id">
             <input id="form-method" type="hidden" name="_method">
@@ -110,13 +110,18 @@
     </form>
 </dialog>
 
+{{-- delete dialog --}}
 <dialog id="delete-dialog" class="modal">
     <div class="modal-box">
         <h3 class="text-2xl font-bold">Hapus Produk ?</h3>
         <div class="modal-action">
-            <form id="delete-dialog-form" class="flex gap-2">
+            <form method="dialog">
                 <button class="btn btn-neutral">Kembali</button>
-                <button id="dialog-delete-button" class="btn btn-error">Hapus</button>
+            </form>
+            <form method="POST" id="delete-dialog-form" class="flex gap-2">
+                @csrf
+                @method('delete')
+                <button type="submit" id="dialog-delete-button" class="btn btn-error">Hapus</button>
             </form>
         </div>
     </div>
@@ -137,40 +142,71 @@ const cuDialogTitle = document.getElementById("create-update-dialog-title");
 //form
 const cuForm = document.getElementById("dialog-form");
 const deleteForm = document.getElementById("delete-dialog-form");
+const formMethod = document.getElementById("form-method");
 
 //action button
 const actionButtonCreate = document.getElementById("action-button-create");
+const actionButtonUpdate = document.querySelectorAll(".action-button-update");
+const actionButtonDelete = document.querySelectorAll(".action-button-delete");
 
 //inside dialog button
 const dialogCreateButton = document.getElementById("dialog-create-button");
 const dialogUpdateButton = document.getElementById("dialog-update-button");
 const dialogDeleteButton = document.getElementById("dialog-delete-button");
 
-//adding event listener
-actionButtonCreate.addEventListener("click", () => openCreateDialog());
-// actionButtonUpdate.addEventListener("click", () => openUpdateDialog());
-// actionButtonDelete.addEventListener("click", () => openDeleteDialog());
+//dialog form input
+const formNama = document.getElementById("modal-nama");
+const formHarga = document.getElementById("modal-harga");
+const formDeskripsi = document.getElementById("modal-deskripsi");
+const formStok = document.getElementById("modal-stok");
+const formKategori = document.getElementById("modal-kategori");
 
-//main function
-function openCreateDialog() {
+//adding event listener
+actionButtonCreate.addEventListener("click", function() {
     cuDialog.showModal();
     cuDialogTitle.innerText = "Tambah data";
-    cuForm.setAttribute("action", "{{ route("barang.store") }}");
-    cuForm.setAttribute("method", "POST");
+    cuForm.setAttribute("action", "{{ route('barang.store') }}");
+    formNama.value = "";
+    formHarga.value = "";
+    formDeskripsi.value = "";
+    formStok.value = "";
+    formKategori.value = "";
     dialogUpdateButton.classList.add("hidden");
     dialogCreateButton.classList.remove("hidden");
-}
+});
 
-// function openUpdateDialog() {
-//     cuDialog.showModal();
-//     cuDialogTitle.innerText = "Ubah data";
-//     dialogCreateButton.classList.add("hidden");
-//     dialogUpdateButton.classList.remove("hidden");
-// }
+actionButtonUpdate.forEach(button => {
+    button.addEventListener("click", function() {
+        const row = this.closest("tr");
+        const nama = row.cells[1].textContent.trim();
+        const harga = row.cells[2].textContent.trim();
+        const deskripsi = row.cells[3].textContent.trim();
+        const stok = row.cells[4].textContent.trim();
+        const kategori = row.cells[5].textContent.trim();
+        const id = row.cells[7].getAttribute("value");
+        formMethod.value = "PUT";
 
-// function openDeleteDialog() {
-//     deleteDialog.showModal();
-// }
+        cuDialog.showModal();
+        cuDialogTitle.innerText = "Edit barang";
+        cuForm.setAttribute("action", "{{ route('barang.update', ':id') }}".replace(":id", id));
+        formNama.value = nama;
+        formHarga.value = harga;
+        formDeskripsi.value = deskripsi;
+        formStok.value = stok;
+        formKategori.value = kategori;
+        dialogCreateButton.classList.add("hidden");
+        dialogUpdateButton.classList.remove("hidden");
+    });
+});
+
+actionButtonDelete.forEach(button => {
+    button.addEventListener("click", function() {
+        const id = this.closest("tr").cells[7].getAttribute("value");
+
+        deleteDialog.showModal();
+        deleteForm.setAttribute("action", "{{ route('barang.destroy', ':id') }}".replace(":id", id));
+    });
+});
 
 function resetForm(id) {
     const target = document.getElementById(id);
