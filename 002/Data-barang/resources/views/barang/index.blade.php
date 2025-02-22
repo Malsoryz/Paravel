@@ -22,10 +22,10 @@
         </thead>
         <tbody>
             @foreach ($barang as $row)
-            <tr>
+            <tr x-data>
                 <th>{{ $loop->iteration }}</th>
                 <th>{{ $row->nama }}</th>
-                <th>{{ $row->harga }}</th>
+                <th x-text="formatRupiah({{ $row->harga }})" value="{{ $row->harga }}"></th>
                 <th>{{ $row->deskripsi }}</th>
                 <th>{{ $row->stok }}</th>
                 <th>{{ $row->kategori }}</th>
@@ -179,7 +179,7 @@ actionButtonUpdate.forEach(button => {
     button.addEventListener("click", function() {
         const row = this.closest("tr");
         const nama = row.cells[1].textContent.trim();
-        const harga = row.cells[2].textContent.trim();
+        const harga = row.cells[2].getAttribute("value");
         const deskripsi = row.cells[3].textContent.trim();
         const stok = row.cells[4].textContent.trim();
         const kategori = row.cells[5].textContent.trim();
@@ -207,11 +207,6 @@ actionButtonDelete.forEach(button => {
         deleteForm.setAttribute("action", "{{ route('barang.destroy', ':id') }}".replace(":id", id));
     });
 });
-
-function resetForm(id) {
-    const target = document.getElementById(id);
-    target.reset();
-}
 
 //other function
 function formatRupiah(nilai) {
