@@ -28,7 +28,16 @@ class BarangController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validate = $request->validate([
+            "nama" => "required|string|max:255",
+            "harga" => "required|integer",
+            "deskripsi" => "string",
+            "stok" => "required|integer",
+            "kategori" => "string|max:255",
+        ]);
+
+        Barang::create($validate);
+        return redirect()->route("barang.index")->with("success","Berhasil menambahkan data baru!");
     }
 
     /**
@@ -50,16 +59,25 @@ class BarangController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Barang $barang)
+    public function update(Request $request, string $id)
     {
-        //
+        Barang::all()->find($id)->update($request->validate([
+            "nama" => "required|string|max:255",
+            "harga" => "required|integer",
+            "deskripsi" => "string",
+            "stok" => "required|integer",
+            "kategori" => "string|max:255",
+        ]));
+
+        return redirect()->route("barang.index");
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Barang $barang)
+    public function destroy(string $id)
     {
-        //
+        Barang::all()->find($id)->delete();
+        return redirect()->route("barang.index");
     }
 }
