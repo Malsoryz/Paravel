@@ -11,7 +11,7 @@
         <thead class="bg-base-100">
             <tr>
                 <th>No.</th>
-                <th>Nama</th>
+                <th>Nama Barang</th>
                 <th>Harga</th>
                 <th>Deskripsi</th>
                 <th>Stok</th>
@@ -29,7 +29,7 @@
                 <th>{{ $row->deskripsi }}</th>
                 <th>{{ $row->stok }}</th>
                 <th>{{ $row->kategori }}</th>
-                <th>{{ $row->created_at }}</th>
+                <th>{{ $row->created_at->diffForHumans() }}</th>
                 <th class="flex gap-2" value="{{ $row->id }}">
                     <button class="action-button-update btn btn-success flex-1">Edit</button>
                     <button class="action-button-delete btn btn-error flex-1">Hapus</button>
@@ -55,7 +55,7 @@
 
             <div>
                 <div class="label">
-                    <span class="label-text">Nama</span>
+                    <span class="label-text">Nama Barang</span>
                 </div>
                 <input id="modal-nama" name="nama" type="text" class="input input-bordered w-full" />
             </div>
